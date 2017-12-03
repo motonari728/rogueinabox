@@ -361,7 +361,7 @@ class QLearnerAgent(LearnerAgent):
         if random.random() <= self.configs["epsilon"]:
             action_index = random.randrange(self.configs["actions_num"])
         else:
-            q = self.model.predict(self.state)
+            q = self.model.predict(self.state) # kerasのpredict, outputは5actionの確率
             logs = [ Log("actions_array", "This is the action array: {}".format(q), LOG_LEVEL_MORE)]
             actions = self.configs["actions"]
             if self.configs["only_legal_actions"]:
@@ -369,6 +369,9 @@ class QLearnerAgent(LearnerAgent):
                 for action in actions:
                     if action not in legal_actions:
                         q[(0, actions.index(action))] = -np.inf
+                        # legal actionにない予測値は、-∞にして選ばれないように。次に確率が高いやつが選ばれる。
+                        # motonariTODO: 動けないactionを許可したほうが、学習しやすいのではないか。許可外のactionを与えたときの挙動を確認
+                        # とおもったら、たいていfalseだった
             logs += [ Log("legal_actions_array", "This is the legal action array: {}".format(q), LOG_LEVEL_MORE)]
             self.l.log(logs)
             action_index = np.argmax(q)

@@ -155,10 +155,11 @@ class H_StateGenerator(StateGenerator):
         return state
 
 class Sn_StateGenerator(StateGenerator):
-    '''abstract class, needs compute_state to instantiate'''
+    ''' 過去10回の移動履歴。新しいものほど明るい。abstract class, needs compute_state to instantiate'''
     def set_snake_layer(self, state, layer):
         unit = 255/10
         past_positions = self.rb.past_positions
+        # past_positions = 10回の移動履歴。新しいものは後ろに追加
         for i, pos in enumerate(past_positions):
             state[layer][pos[0]-1][pos[1]] = (i+1)*unit
         return state

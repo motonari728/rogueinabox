@@ -255,7 +255,7 @@ class De_Model(ModelBuilder):
 
 class T_ModelBuilder(ModelBuilder):
     """ Builds a model with three towers, each one with a focus on different
-    parts of the state.
+    parts of the state. Tower1のみすべてのレイヤー。Tower2,3はpassibleを除く。
     Abstract class, needs a ModelReshaper"""
 
     def __init__(self):

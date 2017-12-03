@@ -155,7 +155,7 @@ class StatisticBalance2RandomPickHM(HistoryManager):
         self._history = deque()
 
     def update_history(self, action_index, reward, terminal):
-        """Update the balanced history queue
+        """Update the balanced history queuee
         return True if an item was added, False otherwise
         """
         item_added = False

@@ -28,8 +28,8 @@ from abc import ABC, abstractmethod
 # Pp = Past player Positions
 
 # other stuff
-# W/nW = Weighted/not Weighted
-# C = Clipped
+# W/nW = Weighted/not Weighted すべての情報を等価に扱うかどうか
+# C = Clipped clip to -1 or 0 or 1
 # R = a Reset condition is present
 
 # ABSTRACT CLASS
@@ -244,7 +244,7 @@ class E_D_Ps_Pp_W_RewardGenerator(E_D_Ps_W_RewardGenerator):
     def compute_reward(self, old_screen, new_screen):
         """return the reward the last action
         +100 for descending the stairs
-        +5 for exploring the map
+        +5 for exploring the map (新しいタイルが増えた場合、まとめて+5)
         from +0.1 to +1 (depending on the distance of the current agent position from
         the agent position 10 time steps ago)
         -1 for standing still

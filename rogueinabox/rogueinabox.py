@@ -120,6 +120,7 @@ class RogueBox:
         return actions
 
     def get_legal_actions(self):
+        """ 意味のあるactionをturnごとに動的に返す """
         actions = []
         row = self.player_pos[0]
         column = self.player_pos[1]
