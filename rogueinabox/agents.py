@@ -509,7 +509,7 @@ class QLearnerAgent(LearnerAgent):
 
     def _train_key_callback(self, event):
         """Callback for keys pressed during learning"""
-        if event.char == 'q' or event.char == 'Q':
+        if event.char == 'Q':
             self.rb.quit_the_game()
             exit()
 
