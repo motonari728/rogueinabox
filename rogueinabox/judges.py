@@ -97,8 +97,8 @@ class Judge(ABC):
 class SimpleExplorationJudge(Judge):
     
     death_sentence = False
-    sample = 200
-    stride = 10 
+    sample = 200 # meanをとる幅
+    stride = 10  # meanをstrideごとに判定
     save_score = True
     save_mean = True
 
