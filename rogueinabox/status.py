@@ -80,11 +80,11 @@ class StateGenerator(ABC):
         for pos in positions:
             if pos:
                 i, j = pos
-                # 縦0~21, 横0~79      縦は後で-1して0から始まるようにしてる
-                # player_posを23, 80に移動したいのでベクトル演算
+                # 縦1~22, 横0~79      縦は後で-1して0から始まるようにしてる
+                # player_posを22, 79に移動したいのでベクトル演算
                 p_i, p_j = player_pos
-                p_i = 23 - p_i
-                p_j = 80 - p_j
+                p_i = 22 - p_i
+                p_j = 79 - p_j
                 state[layer][i - 1+p_i][j+p_j] = value
         return state
 
@@ -92,12 +92,23 @@ class StateGenerator(ABC):
         # the screen is the tombstone game over screen
         # return an array of 0 to differentiate
         return np.zeros([layers, 22, 80], dtype=np.uint8)
+
+    def fix_game_over_state(self, layers):
+        # the screen is the tombstone game over screen
+        # return an array of 0 to differentiate
+        return np.zeros([layers, 22*2, 80*2], dtype=np.uint8)
     
     def unknown_state(self, layers):
         # the screen is inventory, option or a transition screen
         # return an array of 1 to differentiate
         # the agents should not get to this case
         return np.zeros([layers, 22, 80], dtype=np.uint8)
+    
+    def fix_unknown_state(self, layers):
+        # the screen is inventory, option or a transition screen
+        # return an array of 1 to differentiate
+        # the agents should not get to this case
+        return np.zeros([layers, 22*2, 80*2], dtype=np.uint8)
 
 class H_StateGenerator(StateGenerator):
     '''abstract class, needs compute_state to instantiate'''
@@ -257,7 +268,6 @@ class M_P_S_StateGenerator(StateGenerator):
 
 
 class M_P_D_StateGenerator(StateGenerator):
-
     def _set_shape(self):
         self._shape = (3, 22, 80)
 
@@ -283,13 +293,16 @@ class M_P_D_StateGenerator(StateGenerator):
         return state
 
 class Fix_M_P_D_StateGenerator(StateGenerator):
-
     def _set_shape(self):
         self._shape = (3, 22*2, 80*2)
 
     def compute_state(self):
         """return a 3x22x80 numpy array filled with a numeric state"""
         if self.rb.is_map_view(self.rb.screen):
+            # 中央のplayer位置は1箇所なので、2倍ではない
+            # 1(player位置) + (width-1)*2
+            # 1 + (height-1)*2
+            # だが、念のため2倍の画像にする。
             state = np.zeros([3, 22*2, 80*2], dtype=np.uint8)
             positions = self.parse_screen()
 
