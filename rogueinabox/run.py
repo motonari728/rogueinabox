@@ -29,6 +29,7 @@ def main():
     mode = configs["mode"]
     agent_name = configs["agent"]
 
+    # agentの動的読み込み
     agent = getattr(agents, agent_name)(configs)
     try:
         if mode == "play":

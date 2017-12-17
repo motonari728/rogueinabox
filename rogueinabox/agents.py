@@ -305,6 +305,7 @@ class QLearnerAgent(LearnerAgent):
         # load weights, transitions history and parameters from assets, if any
         self._load_progress()
 
+    # 重み,履歴,設定の読み込み
     def _load_progress(self):
         # model weights
         if os.path.isfile("assets/weights.h5"):
@@ -315,7 +316,9 @@ class QLearnerAgent(LearnerAgent):
 
         # transitions history
         if self.configs["save_history"]:
+            print("loading history...")
             self.history_manager.load_history_from_file("assets/history.pkl")
+            print("history loaded")
 
         # parameters
         # only float can be loaded like this for now
@@ -410,7 +413,8 @@ class QLearnerAgent(LearnerAgent):
                 Q_new_state = self.target_model.predict(new_state)
                 targets[i, action_index] = reward + self.configs["gamma"] * np.max(Q_new_state)
 
-        loss = self.model.train_on_batch(inputs, targets)
+        loss = self.model.train_on_batch(inputs, targets) 
+        # TODO: 教師信号も微分してないか確認
         loss_log = [Log("loss_value", "Loss for this iteration: {}".format(loss), LOG_LEVEL_SOME)]
         self.l.log(loss_log)
         self.l.stop_log_timer(timer_log)
@@ -453,6 +457,7 @@ class QLearnerAgent(LearnerAgent):
             ax.text(j, i, '%s' % arrows[best_actions[i][j]], ha='center', va='center')
         fig.savefig("plots/heatmap-iteration-%s.png" % self.configs["iteration"])
 
+    # run.pyから呼ばれる
     def train(self):
         if self.configs["gui"]:
             self._pending_action = self.ui.on_timer_end(100, lambda: self._train_callback(1))
@@ -463,26 +468,28 @@ class QLearnerAgent(LearnerAgent):
                 self._train_step(self.configs["iteration"])
                 self.configs["iteration"] += 1
 
+    # 一行動につき一回のバッチ学習しかしておらず、改善できるかも
+    # batchsize = 32
     def _train_step(self, iteration):
         action_index = self.predict()
         self._train_evaluation_hook_before_action()
         reward, terminal = self.act(action_index)
         self._train_evaluation_hook_after_action()
         item_added = self.history_manager.update_history(action_index, reward, terminal)
-        if iteration % 10 == 0:
+        if iteration % 100 == 0:
             log_iteration = [Log("iteration", "Iteration number: {}".format(self.configs["iteration"]), LOG_LEVEL_SOME)]
             log_iteration += [Log("hist", "History size: {}".format(self.history_manager.hist_len()), LOG_LEVEL_SOME)]
             self.l.log(log_iteration)
         # Begin training only when we have enough history
         if self.history_manager.hist_len() >= self.configs["minhist"] and item_added:
-            self.observe()
+            self.observe() # ここで学習
             # anneal epsilon
             if self.configs["epsilon"] > self.configs["final_epsilon"]:
                 self.configs["epsilon"] -= (self.configs["initial_epsilon"] - self.configs["final_epsilon"]) / \
                                               self.configs["explore_steps"]
             logs = [Log("epsilon", "{}".format(self.configs["epsilon"]), LOG_LEVEL_ALL)]
             self.l.log(logs)
-            if iteration % 100000 == 0:
+            if iteration % 10000 == 0:
                 self._save_progress()
                 #plottin is disabled because its not compatible with every state
                 #uncomment the next line if needed
@@ -510,9 +517,11 @@ class QLearnerAgent(LearnerAgent):
         action_index = self.predict()
         reward, terminal = self.act(action_index)
 
+    # guiで動かしてるときにRogue側に送信した時のみ
     def _train_key_callback(self, event):
         """Callback for keys pressed during learning"""
-        if event.char == 'q' or event.char == 'Q':
+        if event.char == 'Q':
+            self._save_progress()
             self.rb.quit_the_game()
             exit()
 

@@ -76,6 +76,18 @@ class StateGenerator(ABC):
                 state[layer][i - 1][j] = value
         return state
     
+    def set_fix_layer(self, state, layer, positions, value, player_pos):
+        for pos in positions:
+            if pos:
+                i, j = pos
+                # 縦0~21, 横0~79      縦は後で-1して0から始まるようにしてる
+                # player_posを23, 80に移動したいのでベクトル演算
+                p_i, p_j = player_pos
+                p_i = 23 - p_i
+                p_j = 80 - p_j
+                state[layer][i - 1+p_i][j+p_j] = value
+        return state
+
     def game_over_state(self, layers):
         # the screen is the tombstone game over screen
         # return an array of 0 to differentiate
@@ -263,6 +275,32 @@ class M_P_D_StateGenerator(StateGenerator):
 
             # layer 2: the doors positions
             state = self.set_layer(state, 2, positions["doors_pos"], 255)
+
+        elif self.rb.game_over():
+            state = self.game_over_state(3)
+        else:
+            state = self.unknown_state(3)
+        return state
+
+class Fix_M_P_D_StateGenerator(StateGenerator):
+
+    def _set_shape(self):
+        self._shape = (3, 22*2, 80*2)
+
+    def compute_state(self):
+        """return a 3x22x80 numpy array filled with a numeric state"""
+        if self.rb.is_map_view(self.rb.screen):
+            state = np.zeros([3, 22*2, 80*2], dtype=np.uint8)
+            positions = self.parse_screen()
+
+            # layer 0: the map
+            state = self.set_fix_layer(state, 0, positions["passable_pos"], 255)
+
+            # layer 1: the player position
+            state = self.set_fix_layer(state, 1, positions["player_pos"], 255)
+
+            # layer 2: the doors positions
+            state = self.set_fix_layer(state, 2, positions["doors_pos"], 255)
 
         elif self.rb.game_over():
             state = self.game_over_state(3)
