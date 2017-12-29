@@ -25,7 +25,8 @@ run:
 		python run.py; \
 	)
 
-install: makeenv installdeps
+# install: makeenv installdeps
+install: install_motonari
 
 makeenv:
 	if [ ! -d "$(ENV_DIR)" ]; then \
@@ -33,9 +34,21 @@ makeenv:
 	fi
 
 installdeps:
-	( \
-		. $(ENV_DIR)/bin/activate; \
+	(
+		. $(ENV_DIR)/bin/activate;
 		pip install --upgrade pip; \
+		pip install -r requirements.txt; \
+		git clone https://github.com/Theano/libgpuarray.git /tmp/_libgpuarray_git; \
+		cd /tmp/_libgpuarray_git; \
+		git checkout v0.6.5; \
+		python setup.py build; \
+		python setup.py install; \
+		rm -rf /tmp/_libgpuarray_git; \
+	)
+
+install_motonari:
+	(
+		pip install --upgrade pip; \ 
 		pip install -r requirements.txt; \
 		git clone https://github.com/Theano/libgpuarray.git /tmp/_libgpuarray_git; \
 		cd /tmp/_libgpuarray_git; \

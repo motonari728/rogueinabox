@@ -18,3 +18,5 @@ rogueinabox/assets
 /rogue.scr
 plots/
 .vscode/settings.json
+*.pyc
+.vscode/settings.json
