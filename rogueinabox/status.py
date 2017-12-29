@@ -76,13 +76,13 @@ class StateGenerator(ABC):
                 state[layer][i - 1][j] = value
         return state
     
-    def set_fix_layer(self, state, layer, positions, value, player_pos):
+    def set_fix_layer(self, state, layer, positions, value,):
         for pos in positions:
             if pos:
                 i, j = pos
                 # 縦1~22, 横0~79      縦は後で-1して0から始まるようにしてる
                 # player_posを22, 79に移動したいのでベクトル演算
-                p_i, p_j = player_pos
+                p_i, p_j = positions["player_pos"]
                 p_i = 22 - p_i
                 p_j = 79 - p_j
                 state[layer][i - 1+p_i][j+p_j] = value
@@ -316,9 +316,9 @@ class Fix_M_P_D_StateGenerator(StateGenerator):
             state = self.set_fix_layer(state, 2, positions["doors_pos"], 255)
 
         elif self.rb.game_over():
-            state = self.game_over_state(3)
+            state = self.fix_game_over_state(3)
         else:
-            state = self.unknown_state(3)
+            state = self.fix_unknown_state(3)
         return state
 
 class M_P_DS_StateGenerator(StateGenerator):
