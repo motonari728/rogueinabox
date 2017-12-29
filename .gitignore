@@ -8,7 +8,7 @@ pyte/
 rogueinabox/rogue
 rogueinabox/rogue.scr
 rogueinabox/__pycache__
-rogueinabox/assets
+# rogueinabox/assets
 /rogueinabox/player
 /rogueinabox/debuglog.frogue
 /rogueinabox/debuglog.player
@@ -19,4 +19,3 @@ rogueinabox/assets
 plots/
 .vscode/settings.json
 *.pyc
-.vscode/settings.json
