@@ -31,7 +31,11 @@ from abc import ABC, abstractmethod
 # each classname is terminated by _StateGenerator
 # example: M_P_SD_H_StateGenerator
 
+# Global
+positions = {}
+
 # ABSTRACT CLASSES
+
 
 class StateGenerator(ABC):
 
@@ -80,12 +84,12 @@ class StateGenerator(ABC):
         for pos in positions:
             if pos:
                 i, j = pos
-                # 縦1~22, 横0~79      縦は後で-1して0から始まるようにしてる
-                # player_posを22, 79に移動したいのでベクトル演算
+                # 縦0~21, 横0~79
+                # player_posを21, 79に移動したいのでベクトル演算
                 p_i, p_j = positions["player_pos"]
-                p_i = 22 - p_i
+                p_i = 21 - p_i
                 p_j = 79 - p_j
-                state[layer][i - 1+p_i][j+p_j] = value
+                state[layer][i+p_i][j+p_j] = value
         return state
 
     def game_over_state(self, layers):
@@ -292,34 +296,6 @@ class M_P_D_StateGenerator(StateGenerator):
             state = self.unknown_state(3)
         return state
 
-class Fix_M_P_D_StateGenerator(StateGenerator):
-    def _set_shape(self):
-        self._shape = (3, 22*2, 80*2)
-
-    def compute_state(self):
-        """return a 3x22x80 numpy array filled with a numeric state"""
-        if self.rb.is_map_view(self.rb.screen):
-            # 中央のplayer位置は1箇所なので、2倍ではない
-            # 1(player位置) + (width-1)*2
-            # 1 + (height-1)*2
-            # だが、念のため2倍の画像にする。
-            state = np.zeros([3, 22*2, 80*2], dtype=np.uint8)
-            positions = self.parse_screen()
-
-            # layer 0: the map
-            state = self.set_fix_layer(state, 0, positions["passable_pos"], 255)
-
-            # layer 1: the player position
-            state = self.set_fix_layer(state, 1, positions["player_pos"], 255)
-
-            # layer 2: the doors positions
-            state = self.set_fix_layer(state, 2, positions["doors_pos"], 255)
-
-        elif self.rb.game_over():
-            state = self.fix_game_over_state(3)
-        else:
-            state = self.fix_unknown_state(3)
-        return state
 
 class M_P_DS_StateGenerator(StateGenerator):
 
