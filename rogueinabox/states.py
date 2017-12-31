@@ -31,12 +31,7 @@ from abc import ABC, abstractmethod
 # each classname is terminated by _StateGenerator
 # example: M_P_SD_H_StateGenerator
 
-# Global
-positions = {}
-
 # ABSTRACT CLASSES
-
-
 class StateGenerator(ABC):
 
     def __init__(self, rogue_box):
@@ -445,6 +440,10 @@ class M_P_DS_Sn_StateGenerator(Sn_StateGenerator):
         return state
 
 class M_P_D_S_Sn_StateGenerator(Sn_StateGenerator):
+    def __init__(self):
+        super().__init__()
+        # instance変数
+        self.positions = {}
 
     def _set_shape(self):
         self._shape = (5, 22, 80)

@@ -188,6 +188,9 @@ class Ml_Nr_ModelReshaper(ModelReshaper):
         initial_agent_state = first_frame.reshape(1, first_frame.shape[0], first_frame.shape[1], first_frame.shape[2])
         return initial_agent_state
 
+    # ndarray.reshape(1次元目の次元数、2次元目の...)
+    # 配列[0]にそのまま入れて返す
+    # layer, row, collum?
     def reshape_new_state(self, old_state, new_frame):
         new_agent_state = new_frame.reshape(1, new_frame.shape[0], new_frame.shape[1], new_frame.shape[2])
         return new_agent_state

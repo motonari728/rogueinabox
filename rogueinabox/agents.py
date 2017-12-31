@@ -364,6 +364,7 @@ class QLearnerAgent(LearnerAgent):
         if random.random() <= self.configs["epsilon"]:
             action_index = random.randrange(self.configs["actions_num"])
         else:
+            # stateはmodels.pyのreshape_new_stateで生成されたもの
             q = self.model.predict(self.state) # kerasのpredict, outputは5actionの確率
             logs = [ Log("actions_array", "This is the action array: {}".format(q), LOG_LEVEL_MORE)]
             actions = self.configs["actions"]
