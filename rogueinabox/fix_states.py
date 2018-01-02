@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 from states import M_P_D_S_Sn_StateGenerator
 
+
 class fix_M_P_D_S_Sn_StateGenerator(M_P_D_S_Sn_StateGenerator):
     def _set_shape(self):
         self._shape = (5, 22*2, 80*2)
@@ -24,6 +25,7 @@ def convert_to_fix(state, shape, player_pos):
         y = 79 - p_j
         new_state[:, x:x+22, y:y+80] = state
     return new_state
+
 
 
 

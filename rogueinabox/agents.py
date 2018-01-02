@@ -387,6 +387,7 @@ class QLearnerAgent(LearnerAgent):
         logs = [ Log("action_reward", "Sent action: {} got reward: {}".format(action, reward), LOG_LEVEL_MORE)]
         self.l.log(logs)
         self.old_state = self.state
+        # old_stateは使われていない
         self.state = self.model_manager.reshape_new_state(self.old_state, new_state)
         return reward, terminal
 
