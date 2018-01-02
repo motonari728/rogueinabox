@@ -7,8 +7,9 @@ from states import M_P_D_S_Sn_StateGenerator
 
 
 class fix_M_P_D_S_Sn_StateGenerator(M_P_D_S_Sn_StateGenerator):
+    # playerの行と列以外は2倍されるので22*2-1, 80*2-1
     def _set_shape(self):
-        self._shape = (5, 22*2, 80*2)
+        self._shape = (5, 43, 159)
 
     def compute_state(self):
         state = super().compute_state()
@@ -17,6 +18,7 @@ class fix_M_P_D_S_Sn_StateGenerator(M_P_D_S_Sn_StateGenerator):
 
 
 def convert_to_fix(state, shape, player_pos):
+    ''' layer数の変更に対応できるようにshapeを渡す。shape=(layer, width, height) '''
     new_state = np.zeros(shape, dtype=np.uint8)
     if player_pos == []:
         p_i, p_j = player_pos

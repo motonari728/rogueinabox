@@ -1,23 +1,21 @@
-from models import ModelReshaper
 import numpy as np
+from keras.models import Sequential, Model
+from keras.layers import Dense, Flatten, initializers, Input, MaxPooling2D, Lambda
+from keras.layers import Conv2D, ZeroPadding2D
+from keras.layers.merge import concatenate
+from keras.optimizers import Adam, RMSprop
+from abc import ABC, abstractmethod
 
+import skimage
+from skimage import transform, exposure
 
-def convert_to_fix(state, shape, player_pos):
-    ''' layer数の変更に対応できるようにshapeを渡す。shape=(layer, width, height) '''
-    new_state = np.zeros(shape, dtype=np.uint8)
-    if player_pos == []:
-        p_i, p_j = player_pos
-        # p_i, p_jを中心に移したときの画像左上の位置
-        x = 21 - p_i
-        y = 79 - p_j
-        new_state[:, x:x+22, y:y+80] = state
-    return new_state
+from models import ModelReshaper, ModelBuilder
 
 
 class Fix_Ml_Nr_ModelReshaper(ModelReshaper):
     def __init__(self, rogue_box, layers):
-        self.rows = 44
-        self.columns = 160
+        self.rows = 43
+        self.columns = 159
         self.padding = True
         self.actions_num = len(rogue_box.get_actions())
         super().__init__(rogue_box, layers)
@@ -41,8 +39,31 @@ class Fix_Ml_Nr_ModelReshaper(ModelReshaper):
         return new_agent_state
 
 
+class Fix_2T_ModelBuilder(ModelBuilder):
+    def __init__(self, shape):
+        super().__init__()
+        self.depth = 2
+        self.shape = shape
+    
+    def build_model(self):
+        initializer = initializers.random_normal(stddev=0.02)
+    
+        input_img = Input(shape=self.shape)
+        # 21,79周辺1マスを切り出す. 3*3
+        # output_shapeはtheano用。tehsorflowなら自動推論される
+        input_2 = Lambda(lambda x: x[:, :, 20:22, 78:80], output_shape=lambda x: (None, self.layers, 3, 3))(input_img) 
+
+        # whole map tower
+        tower_1 = Conv2D(64, (3, 3), data_format="channels_first", strides=(1, 1), kernel_initializer=initializer, padding="same")(input_img)
+        tower_1 = Conv2D(32, (3, 3), data_format="channels_first", strides=(1, 1), kernel_initializer=initializer, padding="same")(tower_1)
+        tower_1 = MaxPooling2D(pool_size=(22, 80), data_format="channels_first")(tower_1)
+
+
+
+
+
 class Fix_T_5L_Ml_Nr_ModelManager(Fix_Ml_Nr_ModelReshaper, T_ModelBuilder):
     def __init__(self, rogue_box):
         layers = 5
         Fix_Ml_Nr_ModelReshaper.__init__(self, rogue_box, layers)
-        T_ModelBuilder.__init__(self)
+        T_ModelBuilder.__init__(self, self._shape)
